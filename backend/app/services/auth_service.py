@@ -7,7 +7,8 @@ def login_user(email, password):
     if not user:
         return None, "User not found"
 
-    if user.password != password:   # ❗ เดี๋ยวค่อย hash ทีหลัง
+    # FIX: use werkzeug from flask to hash password
+    if user.password != password:
         return None, "Invalid password"
 
     return user, None
