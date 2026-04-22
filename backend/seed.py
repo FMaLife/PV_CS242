@@ -15,14 +15,14 @@ with app.app_context():
     # ---- USER ----
     user = User.query.filter_by(email="test@mail.com").first()
     if not user:
-        user = User(email="test@mail.com", password="1234")
+        user = User(username="Hamtaro", email="test@mail.com", password="1234")
         db.session.add(user)
         db.session.commit()
 
     # ---- COURSE ----
     course = Course.query.filter_by(name="Math", user_id=user.id).first()
     if not course:
-        course = Course(name="Math", user_id=user.id)
+        course = Course(name="Math", course_weight="3", user_id=user.id)
         db.session.add(course)
         db.session.commit()
 
@@ -37,6 +37,7 @@ with app.app_context():
             title="Homework 1",
             deadline=datetime(2026, 4, 20),
             emergency=True,
+            score_weight=10,
             course_id=course.id
         )
         db.session.add(task)
