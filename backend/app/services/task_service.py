@@ -2,6 +2,7 @@ from app.models import db
 from app.models.task_model import Task
 from app.models.course_model import Course
 from datetime import datetime
+from app.core.priority_engine import PriorityEngine
 
 def create_task(title, deadline, score_weight, course_id,
                 description=None, duration=None, emergency=False):
@@ -27,6 +28,38 @@ def create_task(title, deadline, score_weight, course_id,
 
 def get_all_tasks_by_user(user_id):
     return Task.query.join(Course).filter(Course.user_id == user_id).all()
+
+
+def get_prioritized_tasks(user_id):
+    tasks = get_all_tasks_by_user(user_id)
+    engine = PriorityEngine(tasks)
+    prioritized = engine.prioritize()
+
+    result = []
+
+    for item in prioritized:
+        t = item["task"]
+        result.append({
+            "id": t.id,
+            "title": t.get_title(),
+            "description": t.description,
+            "deadline": t.get_deadline().isoformat(),
+            "duration": t.get_duration(),
+            "emergency": t.is_emergency(),
+            "score_weight": t.get_score_weight(),
+            "status": t.get_status(),
+            "course": {
+                "id": t.course.id,
+                "name": t.course.get_name(),
+                "course_code": t.course.get_course_code()
+            },
+            "priority": {
+                "score": round(item["score"], 2),
+                "label": item["label"]
+            }
+        })
+
+    return result
 
 
 def get_task_by_id(task_id):
@@ -64,3 +97,5 @@ def toggle_task_status(task_id, user_id):
     db.session.commit()
 
     return task
+
+ 

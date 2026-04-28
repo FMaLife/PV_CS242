@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, session
 from app.services.task_service import (
     create_task,
     get_all_tasks_by_user,
+    get_prioritized_tasks,
     get_task_by_id,
     update_task,
     toggle_task_status
@@ -42,18 +43,28 @@ def get_all():
     tasks = get_all_tasks_by_user(user_id)
 
     return jsonify([
-        {
-            "id": t.id,
-            "title": t._title,
-            "description": t.description,
-            "deadline": t._deadline,
-            "duration": t._duration,
-            "emergency": t._emergency,
-            "score_weight": t._score_weight,
-            "status": t._status
-        } for t in tasks
-    ])
+    {
+        "id": t.id,
+        "title": t.get_title(),
+        "description": t.description,
+        "deadline": t.get_deadline().isoformat(),
+        "duration": t.get_duration(),
+        "emergency": t.is_emergency(),
+        "score_weight": t.get_score_weight(),
+        "status": t.get_status()
+    } for t in tasks
+])
 
+@task_bp.route("/prioritized", methods=["GET"])
+def get_prioritized():
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = get_prioritized_tasks(user_id)
+
+    return jsonify(data)
 
 @task_bp.route("/<int:task_id>", methods=["GET"])
 def get_one(task_id):
@@ -64,12 +75,18 @@ def get_one(task_id):
 
     t = get_task_by_id(task_id)
 
+    if not t:
+        return jsonify({"error": "Task not found"}), 404
+
     return jsonify({
         "id": t.id,
-        "title": t._title,
+        "title": t.get_title(),
         "description": t.description,
-        "deadline": str(t._deadline),
-        "status": t._status
+        "deadline": t.get_deadline().isoformat(),
+        "duration": t.get_duration(),
+        "emergency": t.is_emergency(),
+        "score_weight": t.get_score_weight(),
+        "status": t.get_status()
     })
 
 
