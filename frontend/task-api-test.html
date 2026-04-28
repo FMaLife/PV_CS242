@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 24px;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .section {
+            border: 1px solid #ddd;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 9px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        button {
+            margin-top: 12px;
+            margin-right: 8px;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            background: #222;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .danger {
+            background: #a83232;
+        }
+
+        .success {
+            background: #2d7d46;
+        }
+
+        pre {
+            background: #111;
+            color: #e7e7e7;
+            padding: 16px;
+            border-radius: 12px;
+            overflow-x: auto;
+            min-height: 180px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Task API Test Page</h1>
+        <p>ใช้หน้านี้เทส login, create task, get all task, get prioritized task และ toggle status</p>
+
+        <div class="section">
+            <h2>1. Login</h2>
+
+            <div class="row">
+                <div>
+                    <label>Email</label>
+                    <input id="email" value="test@mail.com" />
+                </div>
+
+                <div>
+                    <label>Password</label>
+                    <input id="password" value="1234" type="password" />
+                </div>
+            </div>
+
+            <button class="success" onclick="login()">Login</button>
+            <button class="danger" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="section">
+            <h2>2. Create Task</h2>
+
+            <div class="row">
+                <div>
+                    <label>Title</label>
+                    <input id="title" value="Test Assignment" />
+                </div>
+
+                <div>
+                    <label>Course ID</label>
+                    <input id="courseId" value="1" type="number" />
+                </div>
+            </div>
+
+            <label>Description</label>
+            <textarea id="description">Test task from frontend page</textarea>
+
+            <div class="row">
+                <div>
+                    <label>Deadline</label>
+                    <input id="deadline" type="datetime-local" />
+                </div>
+
+                <div>
+                    <label>Duration</label>
+                    <input id="duration" value="2" type="number" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label>Score Weight</label>
+                    <input id="scoreWeight" value="80" type="number" />
+                </div>
+
+                <div>
+                    <label>Emergency</label>
+                    <select id="emergency">
+                        <option value="false">false</option>
+                        <option value="true">true</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="createTask()">Create Task</button>
+        </div>
+
+        <div class="section">
+            <h2>3. Read / Prioritize / Status</h2>
+
+            <button onclick="getAllTasks()">GET /api/task</button>
+            <button onclick="getPrioritizedTasks()">GET /api/task/prioritized</button>
+
+            <div class="row">
+                <div>
+                    <label>Task ID for detail/status</label>
+                    <input id="taskId" value="1" type="number" />
+                </div>
+
+                <div>
+                    <label>&nbsp;</label>
+                    <button onclick="getTaskById()">Get Task By ID</button>
+                    <button onclick="toggleStatus()">Toggle Status</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Result</h2>
+            <pre id="result">Result will show here...</pre>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = "http://127.0.0.1:5000";
+
+        function showResult(data) {
+            document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+        }
+
+        function showError(error) {
+            document.getElementById("result").textContent = error.message || String(error);
+        }
+
+        async function requestApi(path, options = {}) {
+            const response = await fetch(`${BASE_URL}${path}`, {
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(options.headers || {})
+                },
+                ...options
+            });
+
+            const text = await response.text();
+
+            let data;
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch {
+                data = text;
+            }
+
+            if (!response.ok) {
+                throw new Error(JSON.stringify(data, null, 2));
+            }
+
+            return data;
+        }
+
+        async function login() {
+            try {
+                const data = await requestApi("/api/auth/login", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        email: document.getElementById("email").value,
+                        password: document.getElementById("password").value
+                    })
+                });
+
+                showResult(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+
+        async function logout() {
+            try {
+                const data = await requestApi("/api/auth/logout", {
+                    method: "POST"
+                });
+
+                showResult(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+
+        async function createTask() {
+            try {
+                const deadlineInput = document.getElementById("deadline").value;
+
+                if (!deadlineInput) {
+                    alert("Please select deadline first");
+                    return;
+                }
+
+                const data = await requestApi("/api/task", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        title: document.getElementById("title").value,
+                        description: document.getElementById("description").value,
+                        deadline: deadlineInput,
+                        duration: Number(document.getElementById("duration").value),
+                        emergency: document.getElementById("emergency").value === "true",
+                        score_weight: Number(document.getElementById("scoreWeight").value),
+                        course_id: Number(document.getElementById("courseId").value)
+                    })
+                });
+
+                showResult(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+
+        async function getAllTasks() {
+            try {
+                const data = await requestApi("/api/task", {
+                    method: "GET"
+                });
+
+                showResult(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+
+        async function getPrioritizedTasks() {
+            try {
+                const data = await requestApi("/api/task/prioritized", {
+                    method: "GET"
+                });
+
+                showResult(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+
+        async function getTaskById() {
+            try {
+                const taskId = document.getElementById("taskId").value;
+
+                const data = await requestApi(`/api/task/${taskId}`, {
+                    method: "GET"
+                });
+
+                showResult(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+
+        async function toggleStatus() {
+            try {
+                const taskId = document.getElementById("taskId").value;
+
+                const data = await requestApi(`/api/task/${taskId}/status`, {
+                    method: "PATCH"
+                });
+
+                showResult(data);
+            } catch (error) {
+                showError(error);
+            }
+        }
+
+        function setDefaultDeadline() {
+            const date = new Date();
+            date.setDate(date.getDate() + 3);
+            date.setHours(23, 59, 0, 0);
+
+            const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+            document.getElementById("deadline").value = localDate.toISOString().slice(0, 16);
+        }
+
+        setDefaultDeadline();
+    </script>
+</body>
+
+</html>
