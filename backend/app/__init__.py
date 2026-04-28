@@ -11,6 +11,7 @@ def create_app():
 
     # config
     app.config.from_object('app.config.Config')
+    app.config['JSON_SORT_KEYS'] = False
 
     # init database
     db.init_app(app)

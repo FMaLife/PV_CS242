@@ -1,9 +1,14 @@
-# Workload Service
-# Responsible for workload-related operations.
+from app.models.task_model import Task
+from app.models.course_model import Course
+from app.core.workload_analyzer import WorkloadAnalyzer
 
-# Uses:
-# - WorkloadAnalyzer → analyze tasks
-# - PriorityEngine → calculate priority
 
-# This service combines multiple OOP classes
-# to produce final response.
+def get_workload_analysis(user_id, mode="weekly"):
+    tasks = Task.query.join(Course).filter(Course.user_id == user_id).all()
+
+    analyzer = WorkloadAnalyzer(tasks)
+
+    if mode == "weekly":
+        return analyzer.analyze_weekly()
+    else:
+        return analyzer.analyze_monthly()

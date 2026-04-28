@@ -1,13 +1,14 @@
 from app import create_app
 from app.models import db
-from backend.app.models.user_model import User
-from backend.app.models.course_model import Course
-from backend.app.models.task_model import Task
+from app.models.user_model import User
+from app.models.course_model import Course
+from app.models.task_model import Task
 from datetime import datetime
 
 app = create_app()
 
 with app.app_context():
+    db.drop_all()
     db.create_all()
 
     print("Start insert seed data...")
@@ -15,27 +16,32 @@ with app.app_context():
     # ---- USER ----
     user = User.query.filter_by(email="test@mail.com").first()
     if not user:
-        user = User(username="Hamtaro", email="test@mail.com", password="1234")
+        user = User(
+            username="Hamtaro", 
+            email="test@mail.com", 
+            password="scrypt:32768:8:1$8EqCHzqFHFvkj6Jm$e2590466cc048002cce6b5952e863c99a16fff07065c6a2a65fc805027289ea5c783d825fa0fe75f91d727f5f02f256c00dc9f2783671d862caa5448fa3f8ec9")
         db.session.add(user)
         db.session.commit()
 
     # ---- COURSE ----
-    course = Course.query.filter_by(name="Math", user_id=user.id).first()
+    course = Course.query.filter_by(_name="Math", user_id=user.id).first()
     if not course:
-        course = Course(name="Math", course_weight="3", user_id=user.id)
+        course = Course(name="Python", course_code="CS242", course_weight=3, user_id=user.id)
         db.session.add(course)
         db.session.commit()
 
     # ---- TASK ----
     task = Task.query.filter_by(
-        title="Homework 1",
+        _title="Lab 1",
         course_id=course.id
     ).first()
 
     if not task:
         task = Task(
-            title="Homework 1",
-            deadline=datetime(2026, 4, 20),
+            title="Lab 1",
+            description="Implement python programming using dict",
+            deadline=datetime(2026, 4, 30),
+            duration=2,
             emergency=True,
             score_weight=10,
             course_id=course.id
