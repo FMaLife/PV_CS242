@@ -115,10 +115,6 @@ class TaskService:
             self._course_model.user_id == user_id
         ).all()
 
-    def get_all_tasks_response_by_user(self, user_id): # ดึง task object แล้วแปลงเป็น dict สำหรับ response
-        tasks = self.get_all_tasks_by_user(user_id)
-        return [self._task_to_response(task) for task in tasks]
-
     def get_prioritized_tasks(self, user_id):
         tasks = self.get_all_tasks_by_user(user_id)
 
