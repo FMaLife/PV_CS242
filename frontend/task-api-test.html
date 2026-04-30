@@ -1594,6 +1594,7 @@
           <div class="task-actions">
             <button class="btn btn-soft mini-btn" type="button" onclick='openTaskModal(${JSON.stringify(task)})'>Edit</button>
             <button class="btn ${actionClass} mini-btn" type="button" onclick="toggleTask(${task.id})">${actionText}</button>
+            <button class="btn btn-red mini-btn" type="button" onclick="deleteTask(${task.id})">Delete</button>
           </div>
         </article>
       `;
@@ -1856,6 +1857,26 @@
                 await api(`/api/task/${taskId}/status`, { method: 'PATCH' });
                 showToast('Task status updated', 'success');
                 await Promise.all([loadTasks(), loadPriority(), loadNotifications()]);
+                renderAll();
+            } catch (error) {
+                showToast(formatError(error), 'error');
+            } finally {
+                setBusy(false);
+            }
+        }
+
+        async function deleteTask(taskId) {
+            const confirmDelete = confirm(`ต้องการลบ task ID ${taskId} ใช่ไหม?`);
+
+            if (!confirmDelete) {
+                return;
+            }
+
+            setBusy(true);
+            try {
+                await api(`/api/task/${taskId}`, { method: 'DELETE' });
+                showToast('Task deleted', 'success');
+                await Promise.all([loadTasks(), loadPriority(), loadWorkload(), loadNotifications()]);
                 renderAll();
             } catch (error) {
                 showToast(formatError(error), 'error');
