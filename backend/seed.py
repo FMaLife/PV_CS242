@@ -3,7 +3,7 @@ from app.models import db
 from app.models.user_model import User
 from app.models.course_model import Course
 from app.models.task_model import Task
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = create_app()
 
@@ -40,7 +40,7 @@ with app.app_context():
         task = Task(
             title="Lab 1",
             description="Implement python programming using dict",
-            deadline=datetime(2026, 4, 30),
+            deadline=datetime.utcnow() + timedelta(days=7),
             duration=2,
             emergency=True,
             score_weight=10,

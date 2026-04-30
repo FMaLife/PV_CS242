@@ -15,7 +15,7 @@ class Task(db.Model):
 
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
 
-    # ✅ constructor
+    # constructor
     def __init__(self, title, deadline, score_weight, course_id,
                  description=None, duration=None, emergency=False):
         self.set_title(title)
@@ -28,7 +28,7 @@ class Task(db.Model):
         self.description = description
         self.course_id = course_id
 
-    # ✅ getter / setter
+    # getter / setter
     def get_title(self):
         return self._title
 
@@ -41,7 +41,7 @@ class Task(db.Model):
         return self._deadline
 
     def set_deadline(self, deadline):
-        # 🔥 ถ้าเป็น string → parse
+        # ถ้าเป็น string
         if isinstance(deadline, str):
             deadline = datetime.fromisoformat(deadline)
 
@@ -69,7 +69,7 @@ class Task(db.Model):
     def get_status(self):
         return self._status
 
-    # ✅ state control (important)
+    # state control 
     def toggle_status(self):
         if self._status == "pending":
             self._status = "done"
@@ -88,7 +88,7 @@ class Task(db.Model):
             raise ValueError("Task already pending")
         self._status = "pending"
 
-    # ✅ behavior
+    # behavior
     def is_completed(self):
         return self._status == "done"
     
@@ -102,7 +102,7 @@ class Task(db.Model):
     def is_emergency(self):
         return self._emergency
 
-    # ✅ business logic (non-trivial)
+    # business logic 
     def estimate_urgency_level(self):
         days = self.get_days_remaining()
 

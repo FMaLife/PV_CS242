@@ -1,355 +1,1928 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Task API Test</title>
+    <title>TaskFlow Demo | PV CS242</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 24px;
-            color: #222;
+        :root {
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --panel-soft: #f8fafc;
+            --text: #172033;
+            --muted: #667085;
+            --line: #e6eaf0;
+            --primary: #4f7cff;
+            --primary-dark: #315ed8;
+            --green: #1fa971;
+            --orange: #f59e0b;
+            --red: #ef4444;
+            --purple: #8b5cf6;
+            --shadow: 0 18px 45px rgba(31, 41, 55, 0.08);
+            --radius-xl: 28px;
+            --radius-lg: 20px;
+            --radius-md: 14px;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            background: white;
-            padding: 24px;
-            border-radius: 14px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        .section {
-            border: 1px solid #ddd;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            margin-top: 10px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        input,
-        textarea,
-        select {
-            width: 100%;
-            padding: 9px;
-            margin-top: 5px;
+        * {
             box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(79, 124, 255, 0.18), transparent 34%),
+                radial-gradient(circle at bottom right, rgba(31, 169, 113, 0.14), transparent 30%),
+                var(--bg);
+            color: var(--text);
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
         }
 
         button {
-            margin-top: 12px;
-            margin-right: 8px;
-            padding: 10px 14px;
-            border: none;
-            border-radius: 8px;
-            background: #222;
-            color: white;
+            border: 0;
             cursor: pointer;
         }
 
-        button:hover {
-            opacity: 0.85;
+        .hidden {
+            display: none !important;
         }
 
-        .danger {
-            background: #a83232;
+        .login-page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 24px;
+            padding: 34px;
+            align-items: stretch;
         }
 
-        .success {
-            background: #2d7d46;
+        .hero-card,
+        .login-card {
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            overflow: hidden;
         }
 
-        pre {
-            background: #111;
-            color: #e7e7e7;
-            padding: 16px;
+        .hero-card {
+            position: relative;
+            padding: 44px;
+            background: linear-gradient(135deg, #172033 0%, #293a66 58%, #4f7cff 100%);
+            color: white;
+            min-height: 650px;
+        }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            right: -90px;
+            bottom: -130px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+
+        .brand-mark {
+            width: 44px;
+            height: 44px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+
+        .hero-title {
+            position: relative;
+            z-index: 1;
+            margin: 86px 0 18px;
+            max-width: 720px;
+            font-size: clamp(42px, 5vw, 72px);
+            line-height: 0.98;
+            letter-spacing: -2.8px;
+        }
+
+        .hero-subtitle {
+            position: relative;
+            z-index: 1;
+            max-width: 640px;
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        .hero-preview {
+            position: relative;
+            z-index: 1;
+            margin-top: 48px;
+            display: grid;
+            gap: 14px;
+            max-width: 620px;
+        }
+
+        .preview-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.13);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(8px);
+        }
+
+        .preview-item span:first-child {
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .preview-badge {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            font-weight: 800;
+        }
+
+        .login-card {
+            align-self: center;
+            background: var(--panel);
+            padding: 34px;
+        }
+
+        .login-tabs {
+            display: flex;
+            gap: 10px;
+            padding: 7px;
+            background: var(--panel-soft);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            margin-bottom: 26px;
+        }
+
+        .login-tabs button {
+            flex: 1;
+            padding: 12px;
             border-radius: 12px;
-            overflow-x: auto;
-            min-height: 180px;
+            color: var(--muted);
+            background: transparent;
+            font-weight: 800;
         }
 
-        .row {
+        .login-tabs button.active {
+            color: white;
+            background: var(--primary);
+            box-shadow: 0 10px 25px rgba(79, 124, 255, 0.25);
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 30px;
+            letter-spacing: -0.8px;
+        }
+
+        .card-subtitle {
+            margin: 8px 0 24px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .field label {
+            display: block;
+            margin: 0 0 8px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #344054;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 13px 14px;
+            background: white;
+            color: var(--text);
+            outline: none;
+            transition: 0.18s;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: rgba(79, 124, 255, 0.7);
+            box-shadow: 0 0 0 4px rgba(79, 124, 255, 0.12);
+        }
+
+        .field textarea {
+            min-height: 98px;
+            resize: vertical;
+        }
+
+        .split-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 44px;
+            padding: 11px 16px;
+            border-radius: 14px;
+            font-weight: 900;
+            transition: 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 14px 28px rgba(79, 124, 255, 0.22);
+        }
+
+        .btn-soft {
+            color: var(--text);
+            background: var(--panel-soft);
+            border: 1px solid var(--line);
+        }
+
+        .btn-green {
+            color: white;
+            background: var(--green);
+        }
+
+        .btn-red {
+            color: white;
+            background: var(--red);
+        }
+
+        .btn-orange {
+            color: white;
+            background: var(--orange);
+        }
+
+        .app {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.82);
+            border-right: 1px solid rgba(230, 234, 240, 0.9);
+            backdrop-filter: blur(16px);
+        }
+
+        .side-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            font-size: 19px;
+            font-weight: 900;
+        }
+
+        .side-brand .brand-mark {
+            background: #172033;
+            color: white;
+        }
+
+        .nav {
+            display: grid;
+            gap: 8px;
+        }
+
+        .nav button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 15px;
+            background: transparent;
+            color: var(--muted);
+            text-align: left;
+            font-weight: 850;
+        }
+
+        .nav button.active {
+            background: #172033;
+            color: white;
+            box-shadow: 0 12px 28px rgba(23, 32, 51, 0.16);
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            left: 24px;
+            right: 24px;
+            bottom: 24px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .base-box {
+            padding: 14px;
+            border-radius: 18px;
+            background: var(--panel-soft);
+            border: 1px solid var(--line);
+        }
+
+        .base-box small {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--muted);
+            font-weight: 800;
+        }
+
+        .base-box input {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            padding: 0;
+            background: transparent;
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .content {
+            padding: 28px;
+            min-width: 0;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .page-kicker {
+            margin: 0 0 6px;
+            color: var(--primary-dark);
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 34px;
+            letter-spacing: -1px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card,
+        .panel {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(230, 234, 240, 0.9);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 12px 34px rgba(31, 41, 55, 0.06);
+        }
+
+        .stat-card {
+            padding: 18px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 850;
+        }
+
+        .stat-value {
+            margin: 8px 0 2px;
+            font-size: 34px;
+            font-weight: 950;
+            letter-spacing: -1px;
+        }
+
+        .stat-hint {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .layout-2 {
+            display: grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(360px, 0.7fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .panel {
+            padding: 20px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .panel-title {
+            margin: 0;
+            font-size: 21px;
+            letter-spacing: -0.4px;
+        }
+
+        .panel-subtitle {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .search {
+            flex: 1;
+            min-width: 220px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 12px 14px;
+            outline: none;
+            background: white;
+        }
+
+        .list {
+            display: grid;
             gap: 12px;
         }
 
-        @media (max-width: 700px) {
-            .row {
+        .course-card,
+        .task-card,
+        .priority-card,
+        .notification-card {
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: white;
+        }
+
+        .course-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .course-code {
+            display: inline-flex;
+            padding: 7px 10px;
+            border-radius: 999px;
+            color: #315ed8;
+            background: #e9efff;
+            font-weight: 950;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .course-card h3,
+        .task-card h3,
+        .priority-card h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .course-card p,
+        .task-card p,
+        .priority-card p,
+        .notification-card p {
+            margin: 6px 0 0;
+            color: var(--muted);
+            line-height: 1.45;
+            font-size: 13px;
+        }
+
+        .weight-badge {
+            min-width: 74px;
+            text-align: center;
+            padding: 10px 12px;
+            border-radius: 16px;
+            background: var(--panel-soft);
+            border: 1px solid var(--line);
+            font-weight: 950;
+        }
+
+        .task-card {
+            display: grid;
+            gap: 12px;
+        }
+
+        .task-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: var(--panel-soft);
+            color: #475467;
+            font-size: 12px;
+            font-weight: 850;
+        }
+
+        .chip.green {
+            color: #087443;
+            background: #e8f7ef;
+        }
+
+        .chip.red {
+            color: #b42318;
+            background: #feeceb;
+        }
+
+        .chip.orange {
+            color: #b45309;
+            background: #fff4df;
+        }
+
+        .chip.purple {
+            color: #6941c6;
+            background: #f0eaff;
+        }
+
+        .chip.blue {
+            color: #315ed8;
+            background: #e9efff;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .mini-btn {
+            padding: 8px 11px;
+            border-radius: 11px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .empty {
+            padding: 34px 18px;
+            border: 1px dashed #cfd6e4;
+            border-radius: 18px;
+            text-align: center;
+            color: var(--muted);
+            background: rgba(248, 250, 252, 0.75);
+        }
+
+        .priority-card {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .priority-score {
+            width: 78px;
+            height: 78px;
+            border-radius: 26px;
+            display: grid;
+            place-items: center;
+            background: #172033;
+            color: white;
+            font-weight: 950;
+            font-size: 19px;
+        }
+
+        .bar-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .bar-item {
+            display: grid;
+            gap: 8px;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .bar-track {
+            height: 12px;
+            border-radius: 999px;
+            background: #eef2f7;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--primary), var(--green));
+            transition: width 0.3s ease;
+        }
+
+        .notification-card {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .notification-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: #fff4df;
+            flex: 0 0 auto;
+        }
+
+        .toast {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 50;
+            display: grid;
+            gap: 10px;
+            width: min(420px, calc(100vw - 32px));
+        }
+
+        .toast-item {
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: #172033;
+            color: white;
+            box-shadow: var(--shadow);
+            line-height: 1.45;
+            animation: slideUp 0.2s ease;
+        }
+
+        .toast-item.error {
+            background: #7f1d1d;
+        }
+
+        .toast-item.success {
+            background: #064e3b;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(12px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 22px;
+            background: rgba(15, 23, 42, 0.48);
+            backdrop-filter: blur(6px);
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+        }
+
+        .modal {
+            width: min(720px, 100%);
+            max-height: calc(100vh - 44px);
+            overflow: auto;
+            border-radius: 26px;
+            background: white;
+            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+            padding: 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 25px;
+            letter-spacing: -0.6px;
+        }
+
+        .close-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: var(--panel-soft);
+            color: var(--text);
+            font-size: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .loading {
+            opacity: 0.65;
+            pointer-events: none;
+        }
+
+        .mobile-menu {
+            display: none;
+        }
+
+        @media (max-width: 1080px) {
+            .login-page {
                 grid-template-columns: 1fr;
+            }
+
+            .hero-card {
+                min-height: auto;
+            }
+
+            .hero-title {
+                margin-top: 48px;
+            }
+
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                z-index: 30;
+                left: 0;
+                top: 0;
+                transform: translateX(-100%);
+                width: 280px;
+                transition: 0.2s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .mobile-menu {
+                display: inline-flex;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .layout-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 680px) {
+
+            .login-page,
+            .content {
+                padding: 16px;
+            }
+
+            .hero-card,
+            .login-card {
+                padding: 24px;
+                border-radius: 22px;
+            }
+
+            .stats-grid,
+            .split-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .course-card,
+            .priority-card {
+                grid-template-columns: 1fr;
+            }
+
+            .priority-score {
+                width: 100%;
+                height: 54px;
+                border-radius: 16px;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Task API Test Page</h1>
-        <p>ใช้หน้านี้เทส login, create task, get all task, get prioritized task และ toggle status</p>
+    <section id="loginPage" class="login-page">
+        <div class="hero-card">
+            <div class="brand">
+                <div class="brand-mark">✓</div>
+                <span>TaskFlow</span>
+            </div>
 
-        <div class="section">
-            <h2>1. Login</h2>
+            <h1 class="hero-title">Plan tasks by course, priority, and workload.</h1>
+            <p class="hero-subtitle">
+                Demo frontend สำหรับโชว์ระบบจริง: login ด้วย Flask session, เพิ่มรายวิชา, เพิ่มงาน,
+                จัดลำดับความสำคัญ, ดู workload และแจ้งเตือนงานที่ใกล้ส่ง
+            </p>
 
-            <div class="row">
+            <div class="hero-preview">
+                <div class="preview-item">
+                    <span>Authentication</span>
+                    <b class="preview-badge">Session Cookie</b>
+                </div>
+                <div class="preview-item">
+                    <span>Prioritization</span>
+                    <b class="preview-badge">HIGH / MEDIUM / LOW</b>
+                </div>
+                <div class="preview-item">
+                    <span>Workload</span>
+                    <b class="preview-badge">Weekly hours</b>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-card">
+            <div class="login-tabs">
+                <button id="loginTabBtn" class="active" type="button" onclick="showAuthTab('login')">Login</button>
+                <button id="registerTabBtn" type="button" onclick="showAuthTab('register')">Register</button>
+            </div>
+
+            <form id="loginForm" class="form-grid" onsubmit="handleLogin(event)">
                 <div>
+                    <h2 class="card-title">Welcome back</h2>
+                    <p class="card-subtitle">ใช้ account จาก seed หรือ account ที่ register ใหม่ได้เลย</p>
+                </div>
+
+                <div class="field">
                     <label>Email</label>
-                    <input id="email" value="test@mail.com" />
+                    <input id="loginEmail" type="email" value="test@mail.com" autocomplete="email" required />
                 </div>
 
-                <div>
+                <div class="field">
                     <label>Password</label>
-                    <input id="password" value="1234" type="password" />
+                    <input id="loginPassword" type="password" value="1234" autocomplete="current-password" required />
                 </div>
-            </div>
 
-            <button class="success" onclick="login()">Login</button>
-            <button class="danger" onclick="logout()">Logout</button>
+                <button class="btn btn-primary" type="submit">Login and open dashboard</button>
+                <button class="btn btn-soft" type="button" onclick="fillDemoLogin()">Use demo account</button>
+            </form>
+
+            <form id="registerForm" class="form-grid hidden" onsubmit="handleRegister(event)">
+                <div>
+                    <h2 class="card-title">Create account</h2>
+                    <p class="card-subtitle">สมัครแล้วระบบจะ login ให้ต่อใน flow เดียวกัน</p>
+                </div>
+
+                <div class="field">
+                    <label>Username</label>
+                    <input id="registerUsername" value="Hamtaro2" required />
+                </div>
+
+                <div class="field">
+                    <label>Email</label>
+                    <input id="registerEmail" type="email" value="hamtaro2@mail.com" required />
+                </div>
+
+                <div class="field">
+                    <label>Password</label>
+                    <input id="registerPassword" type="password" value="1234" required />
+                </div>
+
+                <button class="btn btn-primary" type="submit">Register</button>
+            </form>
         </div>
+    </section>
 
-        <div class="section">
-            <h2>2. Create Task</h2>
+    <section id="appPage" class="app hidden">
+        <aside id="sidebar" class="sidebar">
+            <div class="side-brand">
+                <div class="brand-mark">✓</div>
+                <span>TaskFlow</span>
+            </div>
 
-            <div class="row">
-                <div>
-                    <label>Title</label>
-                    <input id="title" value="Test Assignment" />
+            <nav class="nav">
+                <button class="active" type="button" data-view="dashboard" onclick="changeView('dashboard')">🏠
+                    Dashboard</button>
+                <button type="button" data-view="courses" onclick="changeView('courses')">📚 Courses</button>
+                <button type="button" data-view="tasks" onclick="changeView('tasks')">📝 Tasks</button>
+                <button type="button" data-view="priority" onclick="changeView('priority')">⚡ Priority</button>
+                <button type="button" data-view="workload" onclick="changeView('workload')">📊 Workload</button>
+                <button type="button" data-view="notifications" onclick="changeView('notifications')">🔔
+                    Notifications</button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="base-box">
+                    <small>Backend API</small>
+                    <input id="baseUrl" value="http://127.0.0.1:5000" onchange="saveBaseUrl()" />
                 </div>
+                <button class="btn btn-soft" type="button" onclick="refreshAll()">Refresh data</button>
+                <button class="btn btn-red" type="button" onclick="handleLogout()">Logout</button>
+            </div>
+        </aside>
 
+        <main class="content">
+            <div class="topbar">
                 <div>
-                    <label>Course ID</label>
-                    <input id="courseId" value="1" type="number" />
+                    <p class="page-kicker">PV CS242 Project Demo</p>
+                    <h1 id="pageTitle" class="page-title">Dashboard</h1>
+                </div>
+                <div class="top-actions">
+                    <button class="btn btn-soft mobile-menu" type="button" onclick="toggleSidebar()">Menu</button>
+                    <button class="btn btn-soft" type="button" onclick="openCourseModal()">+ New course</button>
+                    <button class="btn btn-primary" type="button" onclick="openTaskModal()">+ New task</button>
                 </div>
             </div>
 
-            <label>Description</label>
-            <textarea id="description">Test task from frontend page</textarea>
-
-            <div class="row">
-                <div>
-                    <label>Deadline</label>
-                    <input id="deadline" type="datetime-local" />
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Courses</div>
+                    <div id="statCourses" class="stat-value">0</div>
+                    <div class="stat-hint">รายวิชาทั้งหมด</div>
                 </div>
-
-                <div>
-                    <label>Duration</label>
-                    <input id="duration" value="2" type="number" />
+                <div class="stat-card">
+                    <div class="stat-label">Pending tasks</div>
+                    <div id="statPending" class="stat-value">0</div>
+                    <div class="stat-hint">งานที่ยังไม่เสร็จ</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-label">Completed</div>
+                    <div id="statDone" class="stat-value">0</div>
+                    <div class="stat-hint">งานที่ทำเสร็จแล้ว</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Workload</div>
+                    <div id="statHours" class="stat-value">0h</div>
+                    <div class="stat-hint">ชั่วโมงรวมรายสัปดาห์</div>
+                </div>
+            </section>
+
+            <section id="dashboardView" class="view active">
+                <div class="layout-2">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Next priority tasks</h2>
+                                <p class="panel-subtitle">เรียงจากคะแนน priority ที่ backend คำนวณ</p>
+                            </div>
+                            <button class="btn btn-soft" type="button" onclick="changeView('priority')">View
+                                all</button>
+                        </div>
+                        <div id="dashboardPriorityList" class="list"></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Due soon</h2>
+                                <p class="panel-subtitle">แจ้งเตือนงานที่ใกล้ deadline 24 ชั่วโมง</p>
+                            </div>
+                        </div>
+                        <div id="dashboardNotification"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="coursesView" class="view">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Courses</h2>
+                            <p class="panel-subtitle">สร้างและแก้ไขรายวิชาที่ผูกกับ user จาก session</p>
+                        </div>
+                        <button class="btn btn-primary" type="button" onclick="openCourseModal()">+ Add course</button>
+                    </div>
+                    <div id="courseList" class="list"></div>
+                </div>
+            </section>
+
+            <section id="tasksView" class="view">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Tasks</h2>
+                            <p class="panel-subtitle">เพิ่มงานและกด toggle สถานะ pending/done</p>
+                        </div>
+                        <button class="btn btn-primary" type="button" onclick="openTaskModal()">+ Add task</button>
+                    </div>
+
+                    <div class="toolbar">
+                        <input id="taskSearch" class="search" placeholder="Search task title..."
+                            oninput="renderTasks()" />
+                        <select id="taskFilter" class="search" onchange="renderTasks()">
+                            <option value="all">All tasks</option>
+                            <option value="pending">Pending only</option>
+                            <option value="done">Done only</option>
+                        </select>
+                    </div>
+
+                    <div id="taskList" class="list"></div>
+                </div>
+            </section>
+
+            <section id="priorityView" class="view">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Priority queue</h2>
+                            <p class="panel-subtitle">ใช้ urgency, emergency, course weight และ task score weight จาก
+                                backend</p>
+                        </div>
+                        <button class="btn btn-soft" type="button" onclick="loadPriority()">Recalculate</button>
+                    </div>
+                    <div id="priorityList" class="list"></div>
+                </div>
+            </section>
+
+            <section id="workloadView" class="view">
+                <div class="layout-2">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Weekly workload</h2>
+                                <p class="panel-subtitle">รวม duration ของ task ตามสัปดาห์ deadline</p>
+                            </div>
+                            <button class="btn btn-soft" type="button" onclick="loadWorkload()">Refresh</button>
+                        </div>
+                        <div id="workloadBars" class="bar-list"></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title">Summary</h2>
+                                <p class="panel-subtitle">ข้อมูลจาก /api/workload</p>
+                            </div>
+                        </div>
+                        <div id="workloadSummary" class="list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="notificationsView" class="view">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2 class="panel-title">Notifications</h2>
+                            <p class="panel-subtitle">งานที่ deadline อยู่ในช่วง 24 ชั่วโมงถัดไป</p>
+                        </div>
+                        <button class="btn btn-soft" type="button" onclick="loadNotifications()">Refresh</button>
+                    </div>
+                    <div id="notificationList" class="list"></div>
+                </div>
+            </section>
+        </main>
+    </section>
+
+    <div id="courseModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <h2 id="courseModalTitle">New course</h2>
+                    <p class="panel-subtitle">ข้อมูลนี้จะถูกส่งไปที่ /api/course</p>
+                </div>
+                <button class="close-btn" type="button" onclick="closeCourseModal()">×</button>
             </div>
 
-            <div class="row">
-                <div>
-                    <label>Score Weight</label>
-                    <input id="scoreWeight" value="80" type="number" />
+            <form class="form-grid" onsubmit="saveCourse(event)">
+                <input id="courseId" type="hidden" />
+
+                <div class="field">
+                    <label>Course name</label>
+                    <input id="courseName" placeholder="เช่น Web Programming" required />
                 </div>
 
-                <div>
-                    <label>Emergency</label>
-                    <select id="emergency">
-                        <option value="false">false</option>
-                        <option value="true">true</option>
-                    </select>
-                </div>
-            </div>
-
-            <button onclick="createTask()">Create Task</button>
-        </div>
-
-        <div class="section">
-            <h2>3. Read / Prioritize / Status</h2>
-
-            <button onclick="getAllTasks()">GET /api/task</button>
-            <button onclick="getPrioritizedTasks()">GET /api/task/prioritized</button>
-
-            <div class="row">
-                <div>
-                    <label>Task ID for detail/status</label>
-                    <input id="taskId" value="1" type="number" />
+                <div class="split-2">
+                    <div class="field">
+                        <label>Course code</label>
+                        <input id="courseCode" placeholder="เช่น CS242" maxlength="10" required />
+                    </div>
+                    <div class="field">
+                        <label>Course weight</label>
+                        <input id="courseWeight" type="number" min="1" value="3" required />
+                    </div>
                 </div>
 
-                <div>
-                    <label>&nbsp;</label>
-                    <button onclick="getTaskById()">Get Task By ID</button>
-                    <button onclick="toggleStatus()">Toggle Status</button>
+                <div class="modal-actions">
+                    <button class="btn btn-soft" type="button" onclick="closeCourseModal()">Cancel</button>
+                    <button class="btn btn-primary" type="submit">Save course</button>
                 </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>Result</h2>
-            <pre id="result">Result will show here...</pre>
+            </form>
         </div>
     </div>
 
+    <div id="taskModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <h2 id="taskModalTitle">New task</h2>
+                    <p class="panel-subtitle">ข้อมูลนี้จะถูกส่งไปที่ /api/task</p>
+                </div>
+                <button class="close-btn" type="button" onclick="closeTaskModal()">×</button>
+            </div>
+
+            <form class="form-grid" onsubmit="saveTask(event)">
+                <input id="taskId" type="hidden" />
+
+                <div class="field">
+                    <label>Title</label>
+                    <input id="taskTitle" placeholder="เช่น Lab 2: Priority engine" required />
+                </div>
+
+                <div class="field">
+                    <label>Description</label>
+                    <textarea id="taskDescription" placeholder="รายละเอียดงาน"></textarea>
+                </div>
+
+                <div class="split-2">
+                    <div class="field">
+                        <label>Course</label>
+                        <select id="taskCourse" required></select>
+                    </div>
+                    <div class="field">
+                        <label>Deadline</label>
+                        <input id="taskDeadline" type="datetime-local" required />
+                    </div>
+                </div>
+
+                <div class="split-2">
+                    <div class="field">
+                        <label>Duration (hours)</label>
+                        <input id="taskDuration" type="number" min="0" value="2" required />
+                    </div>
+                    <div class="field">
+                        <label>Score weight</label>
+                        <input id="taskScoreWeight" type="number" min="1" max="100" value="10" required />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Emergency</label>
+                    <select id="taskEmergency">
+                        <option value="false">Normal task</option>
+                        <option value="true">Emergency task</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-soft" type="button" onclick="closeTaskModal()">Cancel</button>
+                    <button class="btn btn-primary" type="submit">Save task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
     <script>
-        const BASE_URL = "http://127.0.0.1:5000";
+        const state = {
+            courses: [],
+            tasks: [],
+            priority: [],
+            workload: null,
+            notifications: null,
+            isLoggedIn: false,
+            currentView: 'dashboard'
+        };
 
-        function showResult(data) {
-            document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+        const $ = (id) => document.getElementById(id);
+        const viewTitles = {
+            dashboard: 'Dashboard',
+            courses: 'Courses',
+            tasks: 'Tasks',
+            priority: 'Priority queue',
+            workload: 'Workload analysis',
+            notifications: 'Notifications'
+        };
+
+        function init() {
+            const savedBaseUrl = localStorage.getItem('taskflow_base_url');
+            if (savedBaseUrl) $('baseUrl').value = savedBaseUrl;
+            setDefaultDeadline();
         }
 
-        function showError(error) {
-            document.getElementById("result").textContent = error.message || String(error);
+        function getBaseUrl() {
+            return $('baseUrl').value.trim().replace(/\/$/, '');
         }
 
-        async function requestApi(path, options = {}) {
-            const response = await fetch(`${BASE_URL}${path}`, {
-                credentials: "include",
+        function saveBaseUrl() {
+            localStorage.setItem('taskflow_base_url', getBaseUrl());
+            showToast('Saved backend URL');
+        }
+
+        function fillDemoLogin() {
+            $('loginEmail').value = 'test@mail.com';
+            $('loginPassword').value = '1234';
+        }
+
+        function showAuthTab(tab) {
+            const isLogin = tab === 'login';
+            $('loginForm').classList.toggle('hidden', !isLogin);
+            $('registerForm').classList.toggle('hidden', isLogin);
+            $('loginTabBtn').classList.toggle('active', isLogin);
+            $('registerTabBtn').classList.toggle('active', !isLogin);
+        }
+
+        function toggleSidebar() {
+            $('sidebar').classList.toggle('open');
+        }
+
+        function setDefaultDeadline() {
+            const d = new Date();
+            d.setDate(d.getDate() + 3);
+            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+            $('taskDeadline').value = d.toISOString().slice(0, 16);
+        }
+
+        async function api(path, options = {}) {
+            const method = options.method || 'GET';
+            const fetchOptions = {
+                method,
+                credentials: 'include',
                 headers: {
-                    "Content-Type": "application/json",
-                    ...(options.headers || {})
-                },
-                ...options
-            });
+                    'Content-Type': 'application/json'
+                }
+            };
 
+            if (options.body !== undefined) {
+                fetchOptions.body = JSON.stringify(options.body);
+            }
+
+            const response = await fetch(getBaseUrl() + path, fetchOptions);
             const text = await response.text();
+            let data = null;
 
-            let data;
             try {
-                data = text ? JSON.parse(text) : {};
+                data = text ? JSON.parse(text) : null;
             } catch {
                 data = text;
             }
 
             if (!response.ok) {
-                throw new Error(JSON.stringify(data, null, 2));
+                const message = data?.error || data?.message || data || `HTTP ${response.status}`;
+                const error = new Error(message);
+                error.status = response.status;
+                error.data = data;
+                throw error;
             }
 
             return data;
         }
 
-        async function login() {
+        async function handleLogin(event) {
+            event.preventDefault();
+            setBusy(true);
             try {
-                const data = await requestApi("/api/auth/login", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        email: document.getElementById("email").value,
-                        password: document.getElementById("password").value
-                    })
+                await api('/api/auth/login', {
+                    method: 'POST',
+                    body: {
+                        email: $('loginEmail').value.trim(),
+                        password: $('loginPassword').value
+                    }
                 });
-
-                showResult(data);
+                state.isLoggedIn = true;
+                showApp();
+                await refreshAll();
+                showToast('Login success', 'success');
             } catch (error) {
-                showError(error);
+                showToast(formatError(error), 'error');
+            } finally {
+                setBusy(false);
             }
         }
 
-        async function logout() {
+        async function handleRegister(event) {
+            event.preventDefault();
+            setBusy(true);
             try {
-                const data = await requestApi("/api/auth/logout", {
-                    method: "POST"
+                await api('/api/auth/register', {
+                    method: 'POST',
+                    body: {
+                        username: $('registerUsername').value.trim(),
+                        email: $('registerEmail').value.trim(),
+                        password: $('registerPassword').value
+                    }
                 });
 
-                showResult(data);
+                $('loginEmail').value = $('registerEmail').value.trim();
+                $('loginPassword').value = $('registerPassword').value;
+                showAuthTab('login');
+                showToast('Register success. Please login.', 'success');
             } catch (error) {
-                showError(error);
+                showToast(formatError(error), 'error');
+            } finally {
+                setBusy(false);
             }
         }
 
-        async function createTask() {
+        async function handleLogout() {
             try {
-                const deadlineInput = document.getElementById("deadline").value;
+                await api('/api/auth/logout', { method: 'POST' });
+            } catch (_) { }
 
-                if (!deadlineInput) {
-                    alert("Please select deadline first");
-                    return;
+            state.isLoggedIn = false;
+            state.courses = [];
+            state.tasks = [];
+            state.priority = [];
+            state.workload = null;
+            state.notifications = null;
+            $('appPage').classList.add('hidden');
+            $('loginPage').classList.remove('hidden');
+            showToast('Logged out');
+        }
+
+        function showApp() {
+            $('loginPage').classList.add('hidden');
+            $('appPage').classList.remove('hidden');
+        }
+
+        async function refreshAll() {
+            setBusy(true);
+            try {
+                await Promise.allSettled([
+                    loadCourses(),
+                    loadTasks(),
+                    loadPriority(),
+                    loadWorkload(),
+                    loadNotifications()
+                ]);
+                renderAll();
+            } finally {
+                setBusy(false);
+            }
+        }
+
+        async function loadCourses() {
+            state.courses = await api('/api/course');
+            renderCourseOptions();
+            renderCourses();
+            renderStats();
+        }
+
+        async function loadTasks() {
+            state.tasks = await api('/api/task');
+            renderTasks();
+            renderStats();
+        }
+
+        async function loadPriority() {
+            state.priority = await api('/api/task/prioritized');
+            renderPriority();
+            renderDashboardPriority();
+        }
+
+        async function loadWorkload() {
+            state.workload = await api('/api/workload');
+            renderWorkload();
+            renderStats();
+        }
+
+        async function loadNotifications() {
+            state.notifications = await api('/api/notification');
+            renderNotifications();
+            renderDashboardNotification();
+        }
+
+        function renderAll() {
+            renderStats();
+            renderCourseOptions();
+            renderCourses();
+            renderTasks();
+            renderPriority();
+            renderDashboardPriority();
+            renderWorkload();
+            renderNotifications();
+            renderDashboardNotification();
+        }
+
+        function changeView(view) {
+            state.currentView = view;
+            document.querySelectorAll('.view').forEach((el) => el.classList.remove('active'));
+            $(`${view}View`).classList.add('active');
+            document.querySelectorAll('.nav button').forEach((btn) => btn.classList.toggle('active', btn.dataset.view === view));
+            $('pageTitle').textContent = viewTitles[view] || 'Dashboard';
+            $('sidebar').classList.remove('open');
+        }
+
+        function renderStats() {
+            const done = state.tasks.filter((t) => t.status === 'done').length;
+            const pending = state.tasks.filter((t) => t.status !== 'done').length;
+            const totalHours = state.workload?.summary?.total_hours ?? 0;
+            $('statCourses').textContent = state.courses.length;
+            $('statPending').textContent = pending;
+            $('statDone').textContent = done;
+            $('statHours').textContent = `${totalHours}h`;
+        }
+
+        function renderCourseOptions() {
+            const select = $('taskCourse');
+            select.innerHTML = '';
+
+            if (state.courses.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Create a course first';
+                select.appendChild(option);
+                return;
+            }
+
+            state.courses.forEach((course) => {
+                const option = document.createElement('option');
+                option.value = course.id;
+                option.textContent = `${course.course_code} · ${course.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        function renderCourses() {
+            const box = $('courseList');
+            if (state.courses.length === 0) {
+                box.innerHTML = emptyState('ยังไม่มีรายวิชา', 'กด Add course เพื่อสร้างรายวิชาแรก');
+                return;
+            }
+
+            box.innerHTML = state.courses.map((course) => `
+        <article class="course-card">
+          <div>
+            <span class="course-code">${escapeHtml(course.course_code)}</span>
+            <h3>${escapeHtml(course.name)}</h3>
+            <p>Course ID: ${course.id}</p>
+          </div>
+          <div style="display:grid; gap:10px; justify-items:end;">
+            <div class="weight-badge">Weight ${course.course_weight}</div>
+            <button class="btn btn-soft mini-btn" type="button" onclick='openCourseModal(${JSON.stringify(course)})'>Edit</button>
+          </div>
+        </article>
+      `).join('');
+        }
+
+        function renderTasks() {
+            const box = $('taskList');
+            const keyword = $('taskSearch').value.trim().toLowerCase();
+            const filter = $('taskFilter').value;
+            const courseMap = getTaskCourseMap();
+
+            let tasks = [...state.tasks];
+            if (keyword) tasks = tasks.filter((task) => task.title.toLowerCase().includes(keyword));
+            if (filter !== 'all') tasks = tasks.filter((task) => task.status === filter);
+
+            tasks.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+            if (tasks.length === 0) {
+                box.innerHTML = emptyState('ยังไม่มี task ที่ตรงเงื่อนไข', 'ลองเพิ่ม task หรือเปลี่ยนตัวกรอง');
+                return;
+            }
+
+            box.innerHTML = tasks.map((task) => taskCard(task, courseMap[task.id])).join('');
+        }
+
+        function taskCard(task, course) {
+            const deadline = formatDate(task.deadline);
+            const statusClass = task.status === 'done' ? 'green' : 'orange';
+            const emergencyChip = task.emergency ? '<span class="chip red">Emergency</span>' : '<span class="chip blue">Normal</span>';
+            const courseLabel = course ? `<span class="chip purple">${escapeHtml(course.course_code)}</span>` : '';
+            const actionText = task.status === 'done' ? 'Mark pending' : 'Mark done';
+            const actionClass = task.status === 'done' ? 'btn-orange' : 'btn-green';
+
+            return `
+        <article class="task-card">
+          <div class="task-top">
+            <div>
+              <h3>${escapeHtml(task.title)}</h3>
+              <p>${escapeHtml(task.description || 'No description')}</p>
+              <div class="meta-row">
+                <span class="chip ${statusClass}">${escapeHtml(task.status)}</span>
+                ${courseLabel}
+                ${emergencyChip}
+                <span class="chip">Deadline: ${deadline}</span>
+                <span class="chip">${task.duration ?? 0}h</span>
+                <span class="chip">Score ${task.score_weight}</span>
+              </div>
+            </div>
+          </div>
+          <div class="task-actions">
+            <button class="btn btn-soft mini-btn" type="button" onclick='openTaskModal(${JSON.stringify(task)})'>Edit</button>
+            <button class="btn ${actionClass} mini-btn" type="button" onclick="toggleTask(${task.id})">${actionText}</button>
+          </div>
+        </article>
+      `;
+        }
+
+        function renderPriority() {
+            const box = $('priorityList');
+            if (!Array.isArray(state.priority) || state.priority.length === 0) {
+                box.innerHTML = emptyState('ไม่มี task ที่ต้องจัด priority', 'งานที่ done แล้วจะไม่อยู่ใน priority queue');
+                return;
+            }
+
+            box.innerHTML = state.priority.map((item) => priorityCard(item)).join('');
+        }
+
+        function renderDashboardPriority() {
+            const box = $('dashboardPriorityList');
+            const list = Array.isArray(state.priority) ? state.priority.slice(0, 3) : [];
+            if (list.length === 0) {
+                box.innerHTML = emptyState('ยังไม่มี priority task', 'เพิ่ม task ที่ยัง pending เพื่อให้ backend คำนวณลำดับ');
+                return;
+            }
+            box.innerHTML = list.map((item) => priorityCard(item)).join('');
+        }
+
+        function priorityCard(item) {
+            const labelClass = item.priority?.label === 'HIGH' ? 'red' : item.priority?.label === 'MEDIUM' ? 'orange' : 'green';
+            return `
+        <article class="priority-card">
+          <div>
+            <div class="meta-row" style="margin-top:0; margin-bottom:9px;">
+              <span class="chip ${labelClass}">${escapeHtml(item.priority?.label || 'LOW')}</span>
+              <span class="chip purple">${escapeHtml(item.course?.course_code || 'COURSE')}</span>
+              ${item.emergency ? '<span class="chip red">Emergency</span>' : '<span class="chip blue">Normal</span>'}
+            </div>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${escapeHtml(item.description || 'No description')}</p>
+            <div class="meta-row">
+              <span class="chip">Deadline: ${formatDate(item.deadline)}</span>
+              <span class="chip">${item.duration ?? 0}h</span>
+              <span class="chip">Score weight ${item.score_weight}</span>
+            </div>
+          </div>
+          <div class="priority-score">${Number(item.priority?.score ?? 0).toFixed(2)}</div>
+        </article>
+      `;
+        }
+
+        function renderWorkload() {
+            const bars = $('workloadBars');
+            const summary = $('workloadSummary');
+            const data = state.workload?.data || [];
+            const max = Math.max(...data.map((item) => item.total_duration), 1);
+
+            if (data.length === 0) {
+                bars.innerHTML = emptyState('ยังไม่มี workload', 'เพิ่ม task พร้อม duration เพื่อให้ backend วิเคราะห์ workload');
+            } else {
+                bars.innerHTML = data.map((item) => {
+                    const width = Math.max(6, (item.total_duration / max) * 100);
+                    return `
+            <div class="bar-item">
+              <div class="bar-label">
+                <span>${escapeHtml(item.label)}</span>
+                <span>${item.total_duration} ${state.workload?.units || 'hours'}</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
+            </div>
+          `;
+                }).join('');
+            }
+
+            const s = state.workload?.summary || {};
+            summary.innerHTML = `
+        <article class="course-card">
+          <div>
+            <span class="course-code">${escapeHtml(state.workload?.mode || 'weekly')}</span>
+            <h3>${s.total_hours ?? 0} hours</h3>
+            <p>Total workload</p>
+          </div>
+        </article>
+        <article class="course-card">
+          <div>
+            <span class="course-code">Busiest</span>
+            <h3>${escapeHtml(s.busiest_period || '-')}</h3>
+            <p>${s.max_hours ?? 0} hours</p>
+          </div>
+        </article>
+      `;
+        }
+
+        function renderNotifications() {
+            const box = $('notificationList');
+            const data = state.notifications;
+            if (!data) {
+                box.innerHTML = emptyState('ยังไม่มีข้อมูล notification', 'กด refresh เพื่อโหลดข้อมูล');
+                return;
+            }
+
+            const tasks = data.tasks || [];
+            const header = `
+        <article class="notification-card">
+          <div class="notification-icon">🔔</div>
+          <div>
+            <h3 style="margin:0;">${escapeHtml(data.type || 'INFO')}</h3>
+            <p>${escapeHtml(data.message || '')}</p>
+          </div>
+        </article>
+      `;
+
+            if (tasks.length === 0) {
+                box.innerHTML = header;
+                return;
+            }
+
+            box.innerHTML = header + tasks.map((task) => `
+        <article class="notification-card">
+          <div class="notification-icon">⏰</div>
+          <div>
+            <h3 style="margin:0;">${escapeHtml(task.title)}</h3>
+            <p>Deadline: ${formatDate(task.deadline)}</p>
+          </div>
+        </article>
+      `).join('');
+        }
+
+        function renderDashboardNotification() {
+            const box = $('dashboardNotification');
+            const data = state.notifications;
+            if (!data) {
+                box.innerHTML = emptyState('ยังไม่มีข้อมูล', 'กด refresh เพื่อโหลด notification');
+                return;
+            }
+
+            box.innerHTML = `
+        <article class="notification-card">
+          <div class="notification-icon">${data.count > 0 ? '⏰' : '✅'}</div>
+          <div>
+            <h3 style="margin:0;">${data.count || 0} task(s)</h3>
+            <p>${escapeHtml(data.message || '')}</p>
+          </div>
+        </article>
+      `;
+        }
+
+        function openCourseModal(course = null) {
+            $('courseId').value = course?.id || '';
+            $('courseName').value = course?.name || '';
+            $('courseCode').value = course?.course_code || '';
+            $('courseWeight').value = course?.course_weight || 3;
+            $('courseModalTitle').textContent = course ? 'Edit course' : 'New course';
+            $('courseModal').classList.add('show');
+        }
+
+        function closeCourseModal() {
+            $('courseModal').classList.remove('show');
+        }
+
+        async function saveCourse(event) {
+            event.preventDefault();
+            const id = $('courseId').value;
+            const body = {
+                name: $('courseName').value.trim(),
+                course_code: $('courseCode').value.trim(),
+                course_weight: Number($('courseWeight').value)
+            };
+
+            setBusy(true);
+            try {
+                if (id) {
+                    await api(`/api/course/${id}`, { method: 'PUT', body });
+                    showToast('Course updated', 'success');
+                } else {
+                    await api('/api/course', { method: 'POST', body });
+                    showToast('Course created', 'success');
                 }
-
-                const data = await requestApi("/api/task", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        title: document.getElementById("title").value,
-                        description: document.getElementById("description").value,
-                        deadline: deadlineInput,
-                        duration: Number(document.getElementById("duration").value),
-                        emergency: document.getElementById("emergency").value === "true",
-                        score_weight: Number(document.getElementById("scoreWeight").value),
-                        course_id: Number(document.getElementById("courseId").value)
-                    })
-                });
-
-                showResult(data);
+                closeCourseModal();
+                await loadCourses();
             } catch (error) {
-                showError(error);
+                showToast(formatError(error), 'error');
+            } finally {
+                setBusy(false);
             }
         }
 
-        async function getAllTasks() {
+        function openTaskModal(task = null) {
+            if (state.courses.length === 0) {
+                showToast('ต้องสร้าง course ก่อนเพิ่ม task', 'error');
+                openCourseModal();
+                return;
+            }
+
+            $('taskId').value = task?.id || '';
+            $('taskTitle').value = task?.title || '';
+            $('taskDescription').value = task?.description || '';
+            $('taskDuration').value = task?.duration ?? 2;
+            $('taskScoreWeight').value = task?.score_weight ?? 10;
+            $('taskEmergency').value = String(task?.emergency ?? false);
+            $('taskModalTitle').textContent = task ? 'Edit task' : 'New task';
+
+            if (task?.deadline) {
+                $('taskDeadline').value = toDatetimeLocal(task.deadline);
+            } else {
+                setDefaultDeadline();
+            }
+
+            const courseMap = getTaskCourseMap();
+            const course = task ? courseMap[task.id] : null;
+            if (course) $('taskCourse').value = course.id;
+
+            $('taskModal').classList.add('show');
+        }
+
+        function closeTaskModal() {
+            $('taskModal').classList.remove('show');
+        }
+
+        async function saveTask(event) {
+            event.preventDefault();
+            const id = $('taskId').value;
+            const body = {
+                title: $('taskTitle').value.trim(),
+                description: $('taskDescription').value.trim(),
+                deadline: $('taskDeadline').value,
+                duration: Number($('taskDuration').value),
+                emergency: $('taskEmergency').value === 'true',
+                score_weight: Number($('taskScoreWeight').value),
+                course_id: Number($('taskCourse').value)
+            };
+
+            setBusy(true);
             try {
-                const data = await requestApi("/api/task", {
-                    method: "GET"
-                });
-
-                showResult(data);
+                if (id) {
+                    await api(`/api/task/${id}`, {
+                        method: 'PUT',
+                        body: {
+                            title: body.title,
+                            deadline: body.deadline,
+                            duration: body.duration,
+                            score_weight: body.score_weight
+                        }
+                    });
+                    showToast('Task updated', 'success');
+                } else {
+                    await api('/api/task', { method: 'POST', body });
+                    showToast('Task created', 'success');
+                }
+                closeTaskModal();
+                await Promise.all([loadTasks(), loadPriority(), loadWorkload(), loadNotifications()]);
+                renderAll();
             } catch (error) {
-                showError(error);
+                showToast(formatError(error), 'error');
+            } finally {
+                setBusy(false);
             }
         }
 
-        async function getPrioritizedTasks() {
+        async function toggleTask(taskId) {
+            setBusy(true);
             try {
-                const data = await requestApi("/api/task/prioritized", {
-                    method: "GET"
-                });
-
-                showResult(data);
+                await api(`/api/task/${taskId}/status`, { method: 'PATCH' });
+                showToast('Task status updated', 'success');
+                await Promise.all([loadTasks(), loadPriority(), loadNotifications()]);
+                renderAll();
             } catch (error) {
-                showError(error);
+                showToast(formatError(error), 'error');
+            } finally {
+                setBusy(false);
             }
         }
 
-        async function getTaskById() {
-            try {
-                const taskId = document.getElementById("taskId").value;
+        function getTaskCourseMap() {
+            const map = {};
+            state.priority.forEach((item) => {
+                if (item.id && item.course) map[item.id] = item.course;
+            });
+            return map;
+        }
 
-                const data = await requestApi(`/api/task/${taskId}`, {
-                    method: "GET"
-                });
+        function emptyState(title, subtitle) {
+            return `<div class="empty"><b>${escapeHtml(title)}</b><br><span>${escapeHtml(subtitle)}</span></div>`;
+        }
 
-                showResult(data);
-            } catch (error) {
-                showError(error);
+        function formatDate(value) {
+            if (!value) return '-';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return value;
+            return date.toLocaleString('th-TH', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            });
+        }
+
+        function toDatetimeLocal(value) {
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+            return date.toISOString().slice(0, 16);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function showToast(message, type = '') {
+            const item = document.createElement('div');
+            item.className = `toast-item ${type}`;
+            item.textContent = message;
+            $('toast').appendChild(item);
+            setTimeout(() => item.remove(), 4200);
+        }
+
+        function formatError(error) {
+            if (error.status === 401) return 'Unauthorized: กรุณา login ก่อน หรือ session หมดอายุ';
+            if (error.message.includes('Failed to fetch')) {
+                return 'เชื่อมต่อ backend ไม่ได้: เช็คว่า python run.py เปิดอยู่ และ BASE_URL ถูกต้อง';
             }
+            return error.message || 'Something went wrong';
         }
 
-        async function toggleStatus() {
-            try {
-                const taskId = document.getElementById("taskId").value;
-
-                const data = await requestApi(`/api/task/${taskId}/status`, {
-                    method: "PATCH"
-                });
-
-                showResult(data);
-            } catch (error) {
-                showError(error);
-            }
+        function setBusy(isBusy) {
+            document.body.classList.toggle('loading', isBusy);
         }
 
-        function setDefaultDeadline() {
-            const date = new Date();
-            date.setDate(date.getDate() + 3);
-            date.setHours(23, 59, 0, 0);
-
-            const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-            document.getElementById("deadline").value = localDate.toISOString().slice(0, 16);
-        }
-
-        setDefaultDeadline();
+        init();
     </script>
 </body>
 
